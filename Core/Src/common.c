@@ -13,6 +13,8 @@
 #include "main.h"
 #include "common.h"
 #include "dwt_delay.h"
+#include "desc_target1.h"
+#include "desc_target2.h"
 // #include "i3c_handle.h"
 
 // #include "stm32f0xx_ll_i2c.h"
@@ -21,6 +23,8 @@
 /*!                Macro definition                                           */
 
 #define READ_WRITE_LEN UINT8_C(8)
+
+__IO uint32_t uwTargetCount = 0;
 
 /******************************************************************************/
 /*!                Static variable definition                                 */
@@ -31,6 +35,16 @@ static uint8_t dev_addr = 0x32;
 extern I3C_HandleTypeDef hi3c1;
 
 volatile uint32_t time_us = 0;
+
+/* Array contain targets descriptor */
+TargetDesc_TypeDef *aTargetDesc[1] =
+    {
+        &TargetDesc1, /* DEVICE_ID1 */
+        &TargetDesc2, /* DEVICE_ID2 */
+};
+
+/* Buffer that contain payload data, mean PID, BCR, DCR */
+uint8_t aPayloadBuffer[64 * COUNTOF(aTargetDesc)];
 
 /******************************************************************************/
 /*!                Static function definition                                 */
@@ -226,7 +240,7 @@ int8_t bmi3_interface_init(struct bmi3_dev *dev, int8_t intf)
             dev->write = I3C_Write_IT;
             dev->intf = BMI3_I3C_INTF;
 
-            rslt = HAL_I3C_Ctrl_DynAddrAssign_IT(&hi3c1, I3C_ONLY_ENTDAA);
+            rslt = HAL_I3C_Ctrl_DynAddrAssign_IT(&hi3c1, I3C_RSTDAA_THEN_ENTDAA);
 
             if (rslt != HAL_OK)
             {
@@ -234,6 +248,7 @@ int8_t bmi3_interface_init(struct bmi3_dev *dev, int8_t intf)
                 Error_Handler();
             }
             printf("I3C bus exited LISTEN state\n");
+            // printf(uwTargetCount);
         }
 
         // /* Bus configuration : I2C */
@@ -344,6 +359,24 @@ static BMI3_INTF_RET_TYPE I3C_Write_IT(uint8_t reg_addr, const uint8_t *reg_data
     pXferData.CtrlBuf.Size = 1;
 
     return HAL_I3C_Ctrl_Transmit_IT(hi3c, &pXferData);
+}
+
+/**
+ * @brief I3C target request a dynamic address callback.
+ *        The main objective of this user function is to check if a target request a dynamic address.
+ *        if the case we should assign a dynamic address to the target.
+ * @par Called functions
+ * - HAL_I3C_TgtReqDynamicAddrCallback()
+ * - HAL_I3C_Ctrl_SetDynamicAddress()
+ * @retval None
+ */
+void HAL_I3C_TgtReqDynamicAddrCallback(I3C_HandleTypeDef *hi3c, uint64_t targetPayload)
+{
+    /* Update Payload on aTargetDesc */
+    aTargetDesc[uwTargetCount]->TARGET_BCR_DCR_PID = targetPayload;
+
+    /* Send associated dynamic address */
+    HAL_I3C_Ctrl_SetDynAddr(hi3c, aTargetDesc[uwTargetCount++]->DYNAMIC_ADDR);
 }
 
 // static BMI3_INTF_RET_TYPE bmi3_i3c_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t len, void *intf_ptr)

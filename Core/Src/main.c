@@ -27,7 +27,6 @@
 #include <stdio.h>
 #include <math.h>
 #include "i3c_handle.h"
-#include "desc_target1.h"
 
 /* USER CODE END Includes */
 
@@ -54,8 +53,6 @@
 /* Private variables ---------------------------------------------------------*/
 
 I3C_HandleTypeDef hi3c1;
-
-__IO uint32_t uwTargetCount = 0;
 
 /* USER CODE BEGIN PV */
 /******************************************************************************/
@@ -107,14 +104,6 @@ static void MX_GPIO_Init(void);
 static void MX_I3C1_Init(void);
 static void MX_ICACHE_Init(void);
 /* USER CODE BEGIN PFP */
-/* Array contain targets descriptor */
-TargetDesc_TypeDef *aTargetDesc[1] =
-    {
-        &TargetDesc1, /* DEVICE_ID1 */
-};
-
-/* Buffer that contain payload data, mean PID, BCR, DCR */
-uint8_t aPayloadBuffer[64 * COUNTOF(aTargetDesc)];
 
 /* USER CODE END PFP */
 
@@ -674,23 +663,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-/**
- * @brief I3C target request a dynamic address callback.
- *        The main objective of this user function is to check if a target request a dynamic address.
- *        if the case we should assign a dynamic address to the target.
- * @par Called functions
- * - HAL_I3C_TgtReqDynamicAddrCallback()
- * - HAL_I3C_Ctrl_SetDynamicAddress()
- * @retval None
- */
-void HAL_I3C_TgtReqDynamicAddrCallback(I3C_HandleTypeDef *hi3c, uint64_t targetPayload)
-{
-  /* Update Payload on aTargetDesc */
-  aTargetDesc[uwTargetCount]->TARGET_BCR_DCR_PID = targetPayload;
-
-  /* Send associated dynamic address */
-  HAL_I3C_Ctrl_SetDynAddr(hi3c, aTargetDesc[uwTargetCount++]->DYNAMIC_ADDR);
-}
 
 /* USER CODE BEGIN 4 */
 

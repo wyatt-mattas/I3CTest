@@ -1,6 +1,6 @@
 /**
  ******************************************************************************
- * @file    desc_target1.h
+ * @file    desc_target2.h
  * @author  MCD Application Team
  * @brief   This file contain the descriptor of an I3C target.
  ******************************************************************************
@@ -16,25 +16,26 @@
  ******************************************************************************
  */
 #include "main.h"
+
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32_I3C_DESC_TARGET1_H
-#define __STM32_I3C_DESC_TARGET1_H
+#ifndef __DESC_TARGET2_H
+#define __DESC_TARGET2_H
 
 /* Includes ------------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-#define TARGET1_DYN_ADDR 0x32
+#define TARGET2_DYN_ADDR 0x34
 
 /********************/
 /* Target Descriptor */
 /********************/
-TargetDesc_TypeDef TargetDesc1 =
+TargetDesc_TypeDef TargetDesc2 =
     {
-        "TARGET_ID1",
-        DEVICE_ID1,
-        0x077010430EF26,
-        0x68,
-        TARGET1_DYN_ADDR,
+        "TARGET_ID2",
+        DEVICE_ID2,
+        0x0000000000000000,
+        0x00,
+        TARGET2_DYN_ADDR,
 };
 
-#endif /* __STM32_I3C_DESC_TARGET1_H */
+#endif /* __DESC_TARGET2_H */

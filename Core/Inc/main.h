@@ -154,7 +154,7 @@ extern "C"
 /* USER CODE BEGIN Private defines */
 /* Define Target Identifier */
 #define DEVICE_ID1 0U
-  // #define DEVICE_ID2      1U
+#define DEVICE_ID2 1U
   /* USER CODE END Private defines */
 
   /* USER CODE END Private defines */
